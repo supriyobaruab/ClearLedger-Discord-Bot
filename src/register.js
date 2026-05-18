@@ -39,6 +39,15 @@ const commands = [
   {
     name: "check",
     description: "Check the total amount",
+    options: [
+      {
+        name: "person",
+        description: "Add a name to get specific details",
+        type: ApplicationCommandOptionType.String,
+        autocomplete: true,
+        required: false,
+      },
+    ],
   },
   {
     name: "addperson",

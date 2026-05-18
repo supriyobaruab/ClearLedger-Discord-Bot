@@ -1,9 +1,9 @@
 const Transaction = require("./schema/transaction");
 
-async function read(userId) {
+async function read(username) {
   try {
     const data = await Transaction.find({
-      userId: userId,
+      username: username,
     }).sort({
       createdAt: -1,
     });

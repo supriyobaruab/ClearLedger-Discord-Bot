@@ -1,6 +1,7 @@
 const write = require("./database/write");
 const read = require("./database/read");
 const People = require("./database/schema/person");
+const checkPerson = require("./components/check");
 async function interaction(interaction) {
   if (interaction.isAutocomplete()) {
     const focused = interaction.options.getFocused();
@@ -85,10 +86,18 @@ async function interaction(interaction) {
     });
   }
   if (interaction.commandName === "check") {
-    const data = await read(interaction.user.id);
+    // console.log(await interaction);
+    const name = interaction.options.getString("person");
+    // console.log(name);
+
+    const data = await read(interaction.user.username);
 
     if (!data || data.length === 0) {
       return interaction.reply({ content: "No logs found.", ephemeral: true });
+    }
+    if (name) {
+      checkPerson(name, interaction);
+      return;
     }
 
     let table = "```";
