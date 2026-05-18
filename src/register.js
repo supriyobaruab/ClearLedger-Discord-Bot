@@ -7,6 +7,7 @@ const {
   ApplicationCommand,
   ApplicationCommandOptionBase,
   ApplicationCommandOptionType,
+  AutocompleteInteraction,
 } = require("discord.js");
 
 const commands = [
@@ -19,28 +20,7 @@ const commands = [
         description: "Enter Person Name",
         type: ApplicationCommandOptionType.String,
         required: true,
-        choices: [
-          {
-            name: "Debongshi",
-            value: "debongshi",
-          },
-          {
-            name: "Sujoy",
-            value: "sujoy",
-          },
-          {
-            name: "Aongkon",
-            value: "aongkon",
-          },
-          {
-            name: "Tasmia",
-            value: "tasmia",
-          },
-          {
-            name: "Shifa",
-            value: "shifa",
-          },
-        ],
+        autocomplete: true,
       },
       {
         name: "add-amount",
@@ -59,6 +39,18 @@ const commands = [
   {
     name: "check",
     description: "Check the total amount",
+  },
+  {
+    name: "addperson",
+    description: "Add a new person",
+    options: [
+      {
+        name: "name",
+        description: "Person name",
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+    ],
   },
 ];
 const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);

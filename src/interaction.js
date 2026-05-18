@@ -1,54 +1,112 @@
-const time = new Date().toISOString().split("T")[0];
-const mongoose = require("mongoose");
-const write = require("./database/managedb");
-const read = require("./database/readdata");
-
+const write = require("./database/write");
+const read = require("./database/read");
+const People = require("./database/schema/person");
 async function interaction(interaction) {
+  if (interaction.isAutocomplete()) {
+    const focused = interaction.options.getFocused();
+
+    const people = await People.find({
+      userId: interaction.user.id,
+      name: {
+        $regex: focused,
+        $options: "i",
+      },
+    });
+
+    await interaction.respond(
+      people.slice(0, 25).map((person) => ({
+        name: person.name,
+        value: person.value,
+      })),
+    );
+
+    return;
+  }
   if (!interaction.isChatInputCommand()) {
     return;
   }
+  if (interaction.commandName === "addperson") {
+    const rawName = interaction.options.getString("name");
+
+    const normalized = rawName.trim().toLowerCase();
+
+    const exists = await People.findOne({
+      userId: interaction.user.id,
+      value: normalized,
+    });
+
+    if (exists) {
+      return interaction.reply("Person already exists.");
+    }
+
+    await People.create({
+      userId: interaction.user.id,
+      name: rawName,
+      value: normalized,
+    });
+
+    return interaction.reply({
+      content: `${rawName} added successfully.`,
+      ephemeral: true,
+    });
+  }
   if (interaction.commandName === "track") {
     const name = interaction.options.getString("add-person");
-    const amount = interaction.options.getNumber("add-amount");
-    const desc = interaction.options.getString("description");
-    await interaction.reply("Adding Meal");
-    await interaction.editReply(
-      `${time}\n**Log added**\nType /check to Check your log`,
-    );
+    const validPerson = await People.findOne({
+      userId: interaction.user.id,
+      value: name,
+    });
+
+    if (!validPerson) {
+      return interaction.reply({
+        content: "Person not registered.",
+        ephemeral: true,
+      });
+    }
     const msg = {
-      name: name,
-      amount: amount,
-      desc: desc,
-      user: interaction.user.username,
+      userId: interaction.user.id,
+
+      username: interaction.user.username,
+
+      person: name,
+
+      amount: interaction.options.getNumber("add-amount"),
+
+      desc: interaction.options.getString("description"),
     };
-    write(msg);
-    const sentMsg = await interaction.channel.send(
-      `Name: ${name}\nAmount: ${amount}`,
-    );
-    setTimeout(() => {
-      sentMsg.delete();
-    }, 5000);
+
+    await write(msg);
+
+    const time = new Date().toISOString().split("T")[0];
+
+    return interaction.reply({
+      content: `${time}\n**Log added**\nName: ${validPerson.name}\nAmount: ${msg.amount}\nType /check to check your log`,
+      ephemeral: true,
+    });
   }
   if (interaction.commandName === "check") {
-    const data = await read(interaction.user.username);
+    const data = await read(interaction.user.id);
 
-    if (data.length === 0) {
-      return interaction.reply("No logs found.");
+    if (!data || data.length === 0) {
+      return interaction.reply({ content: "No logs found.", ephemeral: true });
     }
 
     let table = "```";
 
-    table += "Name           Amount\n";
+    table += "Person         Amount     Description\n";
 
-    table += "----------------------\n";
+    table += "--------------------------------------\n";
 
     data.forEach((item) => {
-      table += `${item._id.padEnd(15)} ${item.totalAmount}\n`;
+      table += `${item.person.padEnd(15)} ${String(item.amount).padEnd(10)} ${item.desc || "None"}\n`;
     });
 
     table += "```";
 
-    await interaction.reply(table);
+    return interaction.reply({
+      content: table,
+      ephemeral: true,
+    });
   }
 }
 module.exports = interaction;

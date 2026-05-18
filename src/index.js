@@ -1,8 +1,8 @@
 const { Client, IntentsBitField } = require("discord.js");
 const clearMsg = require("./clearMsg");
 const interaction = require("./interaction");
-const DB = require("./database/connection");
-const read = require("./database/readdata");
+const DB = require("./database/DB");
+const read = require("./database/read");
 require("dotenv").config();
 
 const client = new Client({
