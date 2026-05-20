@@ -42,7 +42,7 @@ dotenv	Environment variable management
 ⸻
 
 Project Structure
-
+```
 project/
 │
 ├── components/
@@ -65,7 +65,7 @@ project/
 ├── .env
 ├── package.json
 └── README.md
-
+```
 ⸻
 
 Data Storage
