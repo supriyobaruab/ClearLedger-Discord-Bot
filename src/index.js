@@ -1,4 +1,6 @@
 const { Client, IntentsBitField } = require("discord.js");
+const crypto = require("crypto");
+global.crypto = crypto;
 const clearMsg = require("./clearMsg");
 const interaction = require("./interaction");
 const DB = require("./database/DB");

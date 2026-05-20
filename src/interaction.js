@@ -2,6 +2,7 @@ const write = require("./database/write");
 const read = require("./database/read");
 const People = require("./database/schema/person");
 const checkPerson = require("./components/check");
+const capitalize = require("capitalize");
 async function interaction(interaction) {
   if (interaction.isAutocomplete()) {
     const focused = interaction.options.getFocused();
@@ -101,15 +102,18 @@ async function interaction(interaction) {
     }
 
     let table = "```";
+    let total = 0;
 
     table += "Person         Amount     Description\n";
 
     table += "--------------------------------------\n";
 
     data.forEach((item) => {
-      table += `${item.person.padEnd(15)} ${String(item.amount).padEnd(10)} ${item.desc || "None"}\n`;
+      table += `${capitalize(item.person.padEnd(15))} ${String(item.amount).padEnd(10)} ${item.desc || "None"}\n`;
+      total += item.amount;
     });
-
+    table += "--------------------------------------\n";
+    table += `${"Total".padEnd(15)} ${String(total).padEnd(10)}\n`;
     table += "```";
 
     return interaction.reply({
